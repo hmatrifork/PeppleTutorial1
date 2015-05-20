@@ -4,6 +4,7 @@
 #define KEY_CONDITIONS 1
 
 static Window *s_main_window;
+static TextLayer *s_text_layer;
 static TextLayer *s_time_layer;
 static TextLayer *s_weather_layer;
 static GFont s_time_font;
@@ -55,6 +56,16 @@ static void main_window_load(Window *window) {
   bitmap_layer_set_bitmap(s_background_layer, s_background_bitmap);
   layer_add_child(window_get_root_layer(window), bitmap_layer_get_layer(s_background_layer));
 
+  // Create text Layer
+  s_text_layer = text_layer_create(GRect(0, 10, 144, 25));
+  text_layer_set_background_color(s_text_layer, GColorClear);
+  text_layer_set_text_color(s_text_layer, GColorWhite);
+  text_layer_set_text_alignment(s_text_layer, GTextAlignmentCenter);
+  text_layer_set_text(s_text_layer, "Prod isAlive");
+  s_weather_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_DOS_20));
+  text_layer_set_font(s_text_layer, s_weather_font);
+  layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_text_layer));
+
   // Create time TextLayer
   s_time_layer = text_layer_create(GRect(5, 52, 139, 50));
   text_layer_set_background_color(s_time_layer, GColorClear);
@@ -85,6 +96,7 @@ static void main_window_load(Window *window) {
 
 static void main_window_unload(Window *window) {
   // Destroy TextLayer
+  text_layer_destroy(s_text_layer);
   text_layer_destroy(s_time_layer);
   // Unload GFont
   fonts_unload_custom_font(s_time_font);
@@ -96,10 +108,11 @@ static void main_window_unload(Window *window) {
 
 static void inbox_received_callback(DictionaryIterator *iterator, void *context) {
   // Store incoming information
-  static char temperature_buffer[8];
+  static char temp_buffer[8];
   static char conditions_buffer[32];
   static char weather_layer_buffer[32];
-
+  static char isalive[6];
+  
   // Read first item
   Tuple *t = dict_read_first(iterator);
 
@@ -108,13 +121,59 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
   while(t != NULL) {
     // Which key was received?
     switch(t->key) {
-    case KEY_TEMPERATURE:
-      snprintf(temperature_buffer, sizeof(temperature_buffer), "%dC", (int)t->value->int32);
-      APP_LOG(APP_LOG_LEVEL_INFO, "inbox key a temperature=%s",temperature_buffer);
+    case 1:
+      snprintf(temp_buffer, sizeof(temp_buffer), "%d", (int)t->value->int32);
+      APP_LOG(APP_LOG_LEVEL_INFO, "inbox prod01=%s",temp_buffer);
+      if ((int)t->value->int32>0) {
+        isalive[0]='U';
+      } else {
+        isalive[0]='D';      
+      }
       break;
-    case KEY_CONDITIONS:
-      snprintf(conditions_buffer, sizeof(conditions_buffer), "%s", t->value->cstring);
-      APP_LOG(APP_LOG_LEVEL_INFO, "inbox key a conditions=%s",conditions_buffer);
+    case 2:
+      snprintf(temp_buffer, sizeof(temp_buffer), "%d", (int)t->value->int32);
+      APP_LOG(APP_LOG_LEVEL_INFO, "inbox prod02=%s",temp_buffer);
+      if ((int)t->value->int32>0) {
+        isalive[1]='U';
+      } else {
+        isalive[1]='D';      
+      }
+      break;
+    case 3:
+      snprintf(temp_buffer, sizeof(temp_buffer), "%d", (int)t->value->int32);
+      APP_LOG(APP_LOG_LEVEL_INFO, "inbox prod03=%s",temp_buffer);
+      if ((int)t->value->int32>0) {
+        isalive[2]='U';
+      } else {
+        isalive[2]='D';      
+      }
+      break;
+    case 4:
+      snprintf(temp_buffer, sizeof(temp_buffer), "%d", (int)t->value->int32);
+      APP_LOG(APP_LOG_LEVEL_INFO, "inbox prod04=%s",temp_buffer);
+      if ((int)t->value->int32>0) {
+        isalive[3]='U';
+      } else {
+        isalive[3]='D';      
+      }
+      break;
+    case 5:
+      snprintf(temp_buffer, sizeof(temp_buffer), "%d", (int)t->value->int32);
+      APP_LOG(APP_LOG_LEVEL_INFO, "inbox prod05=%s",temp_buffer);
+      if ((int)t->value->int32>0) {
+        isalive[4]='U';
+      } else {
+        isalive[4]='D';      
+      }
+      break;
+    case 6:
+      snprintf(temp_buffer, sizeof(temp_buffer), "%d", (int)t->value->int32);
+      APP_LOG(APP_LOG_LEVEL_INFO, "inbox prod06=%s",temp_buffer);
+      if ((int)t->value->int32>0) {
+        isalive[5]='U';
+      } else {
+        isalive[5]='D';      
+      }
       break;
     default:
       APP_LOG(APP_LOG_LEVEL_ERROR, "Key %d not recognized!", (int)t->key);
@@ -125,7 +184,7 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
     t = dict_read_next(iterator);
   }
   // Assemble full string and display
-  snprintf(weather_layer_buffer, sizeof(weather_layer_buffer), "%s, %s", temperature_buffer, conditions_buffer);
+  snprintf(weather_layer_buffer, sizeof(weather_layer_buffer), "%c %c %c %c %c %c", isalive[0],isalive[1],isalive[2],isalive[3],isalive[4],isalive[5]);
   APP_LOG(APP_LOG_LEVEL_ERROR, "Generated text %s", weather_layer_buffer);
   text_layer_set_text(s_weather_layer, weather_layer_buffer);
 }

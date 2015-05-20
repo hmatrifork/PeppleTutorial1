@@ -51,18 +51,60 @@ function sendWeather(url) {
   );
 }
 
+function sendSplunk(url) {
+  // Send request to OpenWeatherMap
+  xhrRequest(url, 'GET', 
+    function(responseText) {
+      //console.log('responseText=');
+      //console.log(responseText);
+      var count01 = (responseText.match(/prod01.*\n.*succes/g) || []).length;
+      var count02 = (responseText.match(/prod02.*\n.*succes/g) || []).length;
+      var count03 = (responseText.match(/prod03.*\n.*succes/g) || []).length;
+      var count04 = (responseText.match(/prod04.*\n.*succes/g) || []).length;
+      var count05 = (responseText.match(/prod05.*\n.*succes/g) || []).length;
+      var count06 = (responseText.match(/prod06.*\n.*succes/g) || []).length;
+
+      console.log('prod01 '+count01);      
+      console.log('prod02 '+count02);      
+      console.log('prod03 '+count03);      
+      console.log('prod04 '+count04);      
+      console.log('prod05 '+count05);      
+      console.log('prod06 '+count06);      
+
+      var dictionary = {
+        1:count01,
+        2:count02,
+        3:count03,
+        4:count04,
+        5:count05,
+        6:count06,
+      };
+
+      // Send to Pebble
+      Pebble.sendAppMessage(dictionary,
+        function(e) {
+          console.log('IsAlive info sent to Pebble successfully!');
+        },
+        function(e) {
+          console.log('Error sending IsAlive info to Pebble!');
+        }
+      );
+    }      
+  );
+}
+
 function locationSuccess(pos) {
   // Construct URL
   var url = 'http://api.openweathermap.org/data/2.5/weather?lat=' +
       pos.coords.latitude + '&lon=' + pos.coords.longitude;
-  sendWeather(url);
+  sendSplunk('http://isalive.fmk.netic.dk/fmk/prod.html');
 }
   
 function locationError(err) {
   console.log('Error requesting location!');
   // Construct URL
   var url = 'http://api.openweathermap.org/data/2.5/weather?lat=56&lon=10';
-  sendWeather(url);
+  sendSplunk('https://splunk.netic.dk/en-US/app/triforkfmk/pebble_wall');
 }
 
 function getWeather() {
@@ -79,7 +121,8 @@ Pebble.addEventListener('ready',
     console.log('PebbleKit JS ready!');
 
     // Get the initial weather
-    getWeather();
+    //getWeather();
+    sendSplunk('http://isalive.fmk.netic.dk/fmk/prod.html');
   }
 );
 
