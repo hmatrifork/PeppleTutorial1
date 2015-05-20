@@ -1,7 +1,7 @@
 {
     "appKeys": {},
     "capabilities": [
-        ""
+        "location"
     ],
     "companyName": "Hackerdays",
     "longName": "Tutorial 1",
@@ -12,6 +12,11 @@
                 "file": "images/background.png",
                 "name": "IMAGE_BACKGROUND",
                 "type": "png"
+            },
+            {
+                "file": "fonts/perfect-dos-vga.ttf",
+                "name": "FONT_DOS_20",
+                "type": "font"
             },
             {
                 "file": "fonts/perfect-dos-vga.ttf",
